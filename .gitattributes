@@ -1,0 +1,24 @@
+# All files should be LF by default.
+* text eol=lf
+
+# Doesn't matter if these files are LF or CRLF on checkout.
+README text
+INSTALL text
+COPYING text
+*.txt text
+*.bat text
+
+# Binary files
+*.xm binary
+*.mod binary
+*.otf binary
+*.mid binary
+*.ogg binary
+*.s3m binary
+*.gz binary
+*.ttf binary
+*.exe binary
+*.p0 binary
+*.jar binary
+*.png binary
+*.jpg binary
