@@ -46,7 +46,6 @@
 /* STR is redefined in node.h. Since this file doesn't use STR, we remove it */
 #undef STR
 #endif
-#include <node.h>
 
 /** Hooks. */
 struct plugin_hooklist *hooks;
