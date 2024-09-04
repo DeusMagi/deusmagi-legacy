@@ -85,7 +85,7 @@ http_curl_cb (curl_request_t *request, void *user_data)
 TOOLKIT_INIT_FUNC(http_server)
 {
     if (settings.http_server) {
-        process_t *process = process_create("python");
+        process_t *process = process_create("python3");
         process_add_arg(process, "tools/http_server.py");
         process_set_data_out_cb(process, http_data_cb);
         process_set_data_err_cb(process, http_data_cb);

@@ -31,7 +31,7 @@ else:
 
 os.chdir(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-config.readfp(open("server.cfg"))
+config.read_file(open("server.cfg"))
 config.read(["server-custom.cfg"])
 
 path_translations = {
