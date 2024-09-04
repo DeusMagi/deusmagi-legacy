@@ -62,13 +62,13 @@ endif ()
 # Compile the sources into an executable.
 add_executable(${EXECUTABLE} WIN32 ${SOURCES})
 target_link_libraries(${EXECUTABLE} atrinik-toolkit)
+target_link_libraries(${EXECUTABLE} -Xlinker --allow-multiple-definition)
 
 # Link all the available libraries.
 target_link_libraries(${EXECUTABLE} ${SDL_LIBRARY})
 target_link_libraries(${EXECUTABLE} ${SDLIMAGE_LIBRARY})
 target_link_libraries(${EXECUTABLE} ${SDLTTF_LIBRARY})
 target_link_libraries(${EXECUTABLE} ${LIBXML2_LIBRARIES})
-target_link_libraries(${EXECUTABLE} -xlinker -Wl,--allow-multiple-definition)
 
 # Link SDL_mixer if available.
 if (HAVE_SDL_MIXER)

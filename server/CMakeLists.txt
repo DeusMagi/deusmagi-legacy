@@ -97,7 +97,7 @@ endif ()
 # Compile the sources into an executable.
 add_executable(${EXECUTABLE} ${SOURCES} ${LEXERS_OUT} ${SOURCES_CHECK} ${SOURCES_WORLD_MAKER})
 target_link_libraries(${EXECUTABLE} atrinik-toolkit)
-target_link_libraries(${EXECUTABLE} -xlinker -Wl,--allow-multiple-definition)
+target_link_libraries(${EXECUTABLE} -Xlinker --allow-multiple-definition)
 
 # Link libraries.
 if (DL_LIBRARY)
@@ -193,7 +193,7 @@ if (PYTHONLIBS_FOUND)
         src/plugins/plugin_python/plugin_python.c)
     add_library(plugin_python MODULE ${SOURCES_PLUGIN_PYTHON})
     target_link_libraries(plugin_python ${PYTHON_LIBRARIES})
-    target_link_libraries(plugin_python -xlinker -Wl,--allow-multiple-definition)
+    target_link_libraries(plugin_python -Xlinker --allow-multiple-definition)
 else ()
     message(STATUS "Python libs not found, Python plugin will not be built.")
 endif ()
