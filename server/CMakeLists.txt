@@ -1,7 +1,7 @@
 # The Atrinik server CMakeLists file.
 
 project(atrinik-server C)
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.2)
 set(EXECUTABLE atrinik-server)
 set(PACKAGE_NAME "Atrinik Server")
 
@@ -97,6 +97,7 @@ endif ()
 # Compile the sources into an executable.
 add_executable(${EXECUTABLE} ${SOURCES} ${LEXERS_OUT} ${SOURCES_CHECK} ${SOURCES_WORLD_MAKER})
 target_link_libraries(${EXECUTABLE} atrinik-toolkit)
+target_link_libraries(${EXECUTABLE} -xlinker -Wl,--allow-multiple-definition)
 
 # Link libraries.
 if (DL_LIBRARY)
@@ -106,6 +107,7 @@ endif ()
 # Link check.
 if (CHECK_LIBRARY)
     target_link_libraries(${EXECUTABLE} ${CHECK_LIBRARY})
+    target_link_libraries(${EXECUTABLE} subunit)
 
     if (UNIX AND NOT APPLE)
         target_link_libraries(${EXECUTABLE} rt)
@@ -136,21 +138,12 @@ foreach (var ${SOURCES} ${LEXERS_OUT})
     set(SOURCES_STRING "${SOURCES_STRING};${var}")
 endforeach (var)
 
-if (POLICY CMP0037)
-    cmake_policy(PUSH)
-    cmake_policy(SET CMP0037 OLD)
-endif ()
-
 add_custom_target(test
     COMMAND ${EXECUTABLE} --unit --logger_filter_stdout=-info,-devel || exit 5
     COMMAND ${EXECUTABLE} --plugin_unit || exit 5
     COMMENT "Executing unit tests..."
     VERBATIM
 )
-
-if (POLICY CMP0037)
-    cmake_policy(POP)
-endif ()
 
 if (CHECK_LIBRARY)
     # Go through the source files and construct a string.
@@ -200,6 +193,7 @@ if (PYTHONLIBS_FOUND)
         src/plugins/plugin_python/plugin_python.c)
     add_library(plugin_python MODULE ${SOURCES_PLUGIN_PYTHON})
     target_link_libraries(plugin_python ${PYTHON_LIBRARIES})
+    target_link_libraries(plugin_python -xlinker -Wl,--allow-multiple-definition)
 else ()
     message(STATUS "Python libs not found, Python plugin will not be built.")
 endif ()

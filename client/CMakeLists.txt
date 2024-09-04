@@ -1,7 +1,7 @@
 # The Atrinik CMakeLists file.
 
 project(atrinik C)
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.2)
 set(EXECUTABLE atrinik)
 set(EXECUTABLE_UPDATER atrinik2)
 set(PACKAGE_NAME "Atrinik Client")
@@ -68,6 +68,7 @@ target_link_libraries(${EXECUTABLE} ${SDL_LIBRARY})
 target_link_libraries(${EXECUTABLE} ${SDLIMAGE_LIBRARY})
 target_link_libraries(${EXECUTABLE} ${SDLTTF_LIBRARY})
 target_link_libraries(${EXECUTABLE} ${LIBXML2_LIBRARIES})
+target_link_libraries(${EXECUTABLE} -xlinker -Wl,--allow-multiple-definition)
 
 # Link SDL_mixer if available.
 if (HAVE_SDL_MIXER)

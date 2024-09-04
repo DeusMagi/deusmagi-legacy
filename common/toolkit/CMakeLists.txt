@@ -1,7 +1,7 @@
 # The Atrinik toolkit CMakeLists file.
 
 project(atrinik-toolkit C)
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.2)
 set(ATRINIK_TOOLKIT atrinik-toolkit)
 
 # cURL is required by the metaserver.

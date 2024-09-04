@@ -1,5 +1,5 @@
 project(atrinik C)
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.2)
 
 # Include build configuration.
 include(build.config)
