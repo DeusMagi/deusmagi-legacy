@@ -675,7 +675,7 @@ static PyCodeObject *compilePython(char *filename)
 
     if (!cache || cache->cached_time < stat_buf.st_mtime) {
         FILE *fp;
-        struct _node *n;
+        char *n;
         PyCodeObject *code = NULL;
 
         if (cache) {
@@ -688,33 +688,28 @@ static PyCodeObject *compilePython(char *filename)
         fp = fopen(filename, "r");
 
         if (!fp) {
-            LOG(BUG, "Python: The script file %s can't be opened.", filename);
+            LOG(BUG, "Python: The %s script file can't be opened.", filename);
             return NULL;
         }
 
-#ifdef WIN32
-        {
-            char buf[HUGE_BUF], *pystr = NULL;
-            size_t buf_len = 0, pystr_len = 0;
-
-            while (fgets(buf, sizeof(buf), fp)) {
-                buf_len = strlen(buf);
-                pystr_len += buf_len;
-                pystr = realloc(pystr, sizeof(char) * (pystr_len + 1));
-                strcpy(pystr + pystr_len - buf_len, buf);
-                pystr[pystr_len] = '\0';
-            }
-
-            n = PyParser_SimpleParseString(pystr, Py_file_input);
-            free(pystr);
+        fseek(fp, 0, SEEK_END);
+        long filesize = ftell(fp);
+        rewind(fp);
+        
+        n = (char *) malloc(filesize + 1);
+        
+        if (n == NULL) {
+            LOG(BUG, "Python: Can not allocate memory for the %s script file.", filename);
+            
+            fclose(fp);
+            return NULL;
         }
-#else
-        n = PyParser_SimpleParseFile(fp, filename, Py_file_input);
-#endif
-
+        
+        fread(n, 1, filesize, fp);
+        n[filesize] = '\0';
+        
         if (n) {
-            code = PyNode_Compile(n, filename);
-            PyNode_Free(n);
+            code = Py_CompileString(n, filename, 0);
         }
 
         fclose(fp);
@@ -1871,18 +1866,14 @@ static PyObject *Atrinik_Eval(PyObject *self, PyObject *args)
 {
     double seconds = 0.0f;
     const char *s;
-    struct _node *n;
     PyCodeObject *code = NULL;
 
     if (!PyArg_ParseTuple(args, "s|d", &s, &seconds)) {
         return NULL;
     }
 
-    n = PyParser_SimpleParseString(s, Py_file_input);
-
-    if (n != NULL) {
-        code = PyNode_Compile(n, "eval'd code");
-        PyNode_Free(n);
+    if (s != NULL) {
+        code = Py_CompileString(s, "eval'd code", 0);
     }
 
     if (PyErr_Occurred()) {

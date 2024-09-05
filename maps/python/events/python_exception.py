@@ -9,7 +9,7 @@
 import traceback
 
 import Atrinik
-import Markup
+from markupsafe import Markup
 
 # Construct the exception string.
 # noinspection PyUnresolvedReferences
@@ -21,7 +21,7 @@ for line in exception.split("\n"):
         Atrinik.Logger("BUG", line)
 
 # Escape the markup in the exception message, and print it out to all online DMs.
-exception = Markup.markup_escape(exception)
+exception = Markup.escape(exception)
 player = Atrinik.GetFirst("player")
 
 while player:
