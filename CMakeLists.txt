@@ -11,7 +11,7 @@ endif ()
 include_directories(common)
 
 # Add some useful compile flags.
-add_definitions(-Wall -Wextra -Wno-unused-parameter -Wno-deprecated-declarations -Wno-format-truncation -Wno-format-overflow -Wno-implicit-fallthrough -Wno-int-conversion -Wno-cast-function-type -Wno-discarded-qualifiers -Wno-implicit-function-declaration -Wno-missing-field-initializers -D_GNU_SOURCE -D__USE_MINGW_ANSI_STDIO=0 -std=gnu99)
+add_definitions(-Wall -Wextra -Wno-unused-parameter -Wno-deprecated-declarations -Wno-format-truncation -Wno-format-overflow -Wno-implicit-fallthrough -Wno-int-conversion -Wno-cast-function-type -Wno-discarded-qualifiers -Wno-implicit-function-declaration -Wno-missing-field-initializers -Wno-incompatible-pointer-types -D_GNU_SOURCE -D__USE_MINGW_ANSI_STDIO=0 -std=gnu99)
 add_definitions(${CUSTOM_WARNINGS})
 
 if (NOT MINGW)
