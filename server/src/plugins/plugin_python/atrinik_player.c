@@ -1198,6 +1198,7 @@ int Atrinik_Player_init(PyObject *module)
     getseters[i].name = NULL;
 
     Atrinik_PlayerType.tp_new = PyType_GenericNew;
+    Atrinik_PlayerType.tp_name = "Atrinik.Player";
 
     if (PyType_Ready(&Atrinik_PlayerType) < 0) {
         return 0;

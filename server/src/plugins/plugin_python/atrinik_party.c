@@ -375,6 +375,7 @@ int Atrinik_Party_init(PyObject *module)
     getseters[i].name = NULL;
 
     Atrinik_PartyType.tp_new = PyType_GenericNew;
+    Atrinik_PartyType.tp_name = "Atrinik.Party";
 
     if (PyType_Ready(&Atrinik_PartyType) < 0) {
         return 0;

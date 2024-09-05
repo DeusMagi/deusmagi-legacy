@@ -490,7 +490,7 @@ typedef struct python_cache_entry {
     char *file;
 
     /** The cached code. */
-    PyCodeObject *code;
+    PyObject *code;
 
     /** Last cached time. */
     time_t cached_time;

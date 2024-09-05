@@ -784,6 +784,7 @@ PyTypeObject Atrinik_AttrListType = {
 int Atrinik_AttrList_init(PyObject *module)
 {
     Atrinik_AttrListType.tp_new = PyType_GenericNew;
+    Atrinik_AttrListType.tp_name = "Atrinik.AttrList";
 
     if (PyType_Ready(&Atrinik_AttrListType) < 0) {
         return 0;

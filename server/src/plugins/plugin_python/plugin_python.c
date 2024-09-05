@@ -73,7 +73,7 @@ typedef struct python_eval_struct {
 
     PyObject *globals; ///< Globals dictionary.
     PyObject *locals; ///< Locals dictionary.
-    PyCodeObject *code; ///< Compiled code to execute.
+    PyObject *code; ///< Compiled code to execute.
     double seconds; ///< When to execute.
 } python_eval_struct;
 
@@ -661,7 +661,7 @@ static void PyErr_LOG(void)
  * Outputs the compiled bytecode for a given python file, using in-memory
  * caching of bytecode.
  */
-static PyCodeObject *compilePython(char *filename)
+static PyObject *compilePython(char *filename)
 {
     struct stat stat_buf;
     python_cache_entry *cache;
@@ -676,7 +676,7 @@ static PyCodeObject *compilePython(char *filename)
     if (!cache || cache->cached_time < stat_buf.st_mtime) {
         FILE *fp;
         char *n;
-        PyCodeObject *code = NULL;
+        PyObject *code = NULL;
 
         if (cache) {
             HASH_DEL(python_cache, cache);
@@ -732,7 +732,7 @@ static PyCodeObject *compilePython(char *filename)
 
 static int do_script(PythonContext *context, const char *filename)
 {
-    PyCodeObject *pycode;
+    PyObject *pycode;
     PyObject *dict, *ret;
     PyGILState_STATE gilstate;
 
@@ -1866,7 +1866,7 @@ static PyObject *Atrinik_Eval(PyObject *self, PyObject *args)
 {
     double seconds = 0.0f;
     const char *s;
-    PyCodeObject *code = NULL;
+    PyObject *code = NULL;
 
     if (!PyArg_ParseTuple(args, "s|d", &s, &seconds)) {
         return NULL;
@@ -2535,36 +2535,43 @@ MODULEAPI void initPlugin(struct plugin_hooklist *hooklist)
 
     module_tmp = module_create(m, "Object");
     if (!Atrinik_Object_init(module_tmp)) {
+        LOG(ERROR, "Failed to initialize Atrinik.Object");
         return;
     }
 
     module_tmp = module_create(m, "Map");
     if (!Atrinik_Map_init(module_tmp)) {
+        LOG(ERROR, "Failed to initialize Atrinik.Map");
         return;
     }
 
     module_tmp = module_create(m, "Party");
     if (!Atrinik_Party_init(module_tmp)) {
+        LOG(ERROR, "Failed to initialize Atrinik.Party");
         return;
     }
 
     module_tmp = module_create(m, "Region");
     if (!Atrinik_Region_init(module_tmp)) {
+        LOG(ERROR, "Failed to initialize Atrinik.Region");
         return;
     }
 
     module_tmp = module_create(m, "Player");
     if (!Atrinik_Player_init(module_tmp)) {
+        LOG(ERROR, "Failed to initialize Atrinik.Player");
         return;
     }
 
     module_tmp = module_create(m, "Archetype");
     if (!Atrinik_Archetype_init(module_tmp)) {
+        LOG(ERROR, "Failed to initialize Atrinik.Archetype");
         return;
     }
 
     module_tmp = module_create(m, "AttrList");
     if (!Atrinik_AttrList_init(module_tmp)) {
+        LOG(ERROR, "Failed to initialize Atrinik.AttrList");
         return;
     }
 

@@ -3066,6 +3066,7 @@ int Atrinik_Object_init(PyObject *module)
     getseters[i].name = NULL;
 
     Atrinik_ObjectType.tp_new = PyType_GenericNew;
+    Atrinik_ObjectType.tp_name = "Atrinik.Object";
 
     if (PyType_Ready(&Atrinik_ObjectType) < 0) {
         return 0;
@@ -3074,6 +3075,8 @@ int Atrinik_Object_init(PyObject *module)
     Py_INCREF(&Atrinik_ObjectType);
     PyModule_AddObject(module, "Object", (PyObject *) &Atrinik_ObjectType);
 
+    Atrinik_ObjectIteratorType.tp_name = "Atrinik.ObjectIterator";
+    
     if (PyType_Ready(&Atrinik_ObjectIteratorType) < 0) {
         return 0;
     }

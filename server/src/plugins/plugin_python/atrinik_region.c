@@ -211,6 +211,7 @@ int Atrinik_Region_init(PyObject *module)
     getseters[i].name = NULL;
 
     Atrinik_RegionType.tp_new = PyType_GenericNew;
+    Atrinik_RegionType.tp_name = "Atrinik.Region";
 
     if (PyType_Ready(&Atrinik_RegionType) < 0) {
         return 0;
