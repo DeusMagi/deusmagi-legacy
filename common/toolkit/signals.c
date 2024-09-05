@@ -88,6 +88,7 @@ static void simple_signal_handler(int signum)
 
     /* SIGSEGV, so abort instead of exiting normally. */
     if (signum == SIGSEGV) {
+        LOG(ERROR, "signum = SIGSEV");
         abort();
     }
 
