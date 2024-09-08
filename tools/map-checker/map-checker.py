@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #*************************************************************************
 #*            Atrinik, a Multiplayer Online Role Playing Game            *
 #*                                                                       *
@@ -218,7 +218,7 @@ ignore_events = on
 """)
 
 config = ConfigParser()
-config.readfp(default_cfg)
+config.read_file(default_cfg)
 config.read(['config.cfg'])
 
 # Add error to errors_l.
@@ -357,8 +357,8 @@ def check_map(map):
             add_error(map["file"], "Map is missing background music.", errors.low)
 
     # Go through all the spaces on the map.
-    for x in xrange(0, map["width"]):
-        for y in xrange(0, map["height"]):
+    for x in range(0, map["width"]):
+        for y in range(0, map["height"]):
             if not x in map["tiles"] or not y in map["tiles"][x]:
                 continue
 
@@ -378,9 +378,13 @@ def check_map(map):
                 # Get our layer and sub-layer.
                 layer = "layer" in obj and obj["layer"] or 0
                 sub_layer = "sub_layer" in obj and obj["sub_layer"] or 0
-                # Increase number of layers.
-                layers[layer][sub_layer] += 1
-
+                
+                try:
+                    # Increase number of layers.
+                    layers[layer][sub_layer] += 1
+                except IndexError:
+                    continue
+                
                 # Increase number of objects, if we're not on layer 0.
                 if layer != 0:
                     obj_count += 1
@@ -409,8 +413,8 @@ def check_map(map):
 
             # Go through the layers (ignoring layer 0), and check if we have more than one
             # object of the same layer on this space.
-            for i in xrange(1, checker.max_layers):
-                for j in xrange(0, checker.num_sub_layers):
+            for i in range(1, checker.max_layers):
+                for j in range(0, checker.num_sub_layers):
                     if layers[i][j] > 1:
                         add_error(map["file"], "More than 1 object ({0}) with layer {1}, sub-layer {2} on same tile.".format(layers[i][j], i, j), errors.warning, x, y)
 
@@ -1093,7 +1097,7 @@ def parse_regions():
     return d
 
 def config_save():
-    with open("config.cfg", "wb") as configfile:
+    with open("config.cfg", "w") as configfile:
         config.write(configfile)
 
 # Find files in the specified path.
@@ -1169,13 +1173,11 @@ regions = parse_regions()
 
 # GUI.
 if not cli:
-    try:
-        import pygtk
-        pygtk.require("2.0")
-    except ImportError:
-        print("PyGTK not found. Please make sure it is installed properly and referenced in your PYTHONPATH environment variable.")
-
-    import gtk, re, webbrowser
+    import gi
+    gi.require_version("Gtk", "3.0")
+    from gi.repository import Gtk
+    
+    import re, webbrowser
     from datetime import datetime
 
     class pref_types:
@@ -1223,11 +1225,11 @@ if not cli:
         # @param main Class we're coming from.
         def __init__(self, main):
             # Make a new window.
-            self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+            self.window = Gtk.Window(type = Gtk.WindowType.TOPLEVEL)
             # Set the window's parent.
             self.window.set_transient_for(main.window)
             # Center it on parent.
-            self.window.set_position(gtk.WIN_POS_CENTER_ON_PARENT)
+            self.window.set_position(Gtk.WIN_POS_CENTER_ON_PARENT)
             # Set title.
             self.window.set_title("Properties")
             # Set default size.
@@ -1235,31 +1237,31 @@ if not cli:
             self.main = main
 
             # Create vertical box.
-            self.window.vbox = gtk.VBox()
+            self.window.vbox = Gtk.VBox()
             self.window.add(self.window.vbox)
 
             # Create a new table, and add it to the box.
-            table = gtk.Table(2, 2, False)
+            table = Gtk.Table(2, 2, False)
             self.window.vbox.add(table)
 
             # Create a new GTK Notebook and add it to the table.
-            notebook = gtk.Notebook()
-            notebook.set_tab_pos(gtk.POS_LEFT)
+            notebook = Gtk.Notebook()
+            notebook.set_tab_pos(Gtk.POS_LEFT)
             table.attach(notebook, 0, 1, 0, 1, xpadding = 10, ypadding = 5)
 
             # Now we create the contents.
             for (tab_name, desc, prefs, note) in self.tabs:
                 # Set up alignment.
-                vbox_alignment = gtk.Alignment()
+                vbox_alignment = Gtk.Alignment()
                 vbox_alignment.set_padding(5, 5, 10, 10)
                 # Create a vertical box, and add it to the alignment.
-                vbox = gtk.VBox(False, 2)
+                vbox = Gtk.VBox(False, 2)
                 vbox_alignment.add(vbox)
 
                 # Create another alignment, set up label, add description contents,
                 # and add it to the box.
-                alignment = gtk.Alignment()
-                label = gtk.Label()
+                alignment = Gtk.Alignment()
+                label = Gtk.Label()
                 label.set_markup(desc)
                 vbox.pack_start(alignment, False, True, 1)
                 alignment.add(label)
@@ -1267,13 +1269,13 @@ if not cli:
                 # Now we add the actual preferences.
                 for (pref_type, pref_name, pref_config) in prefs:
                     # Alignment.
-                    alignment = gtk.Alignment()
+                    alignment = Gtk.Alignment()
                     alignment.set_padding(0, 0, 10, 5)
                     (config_section, config_name) = pref_config
 
                     # A checkbox?
                     if pref_type == pref_types.checkbox:
-                        widget = gtk.CheckButton(pref_name)
+                        widget = Gtk.CheckButton(pref_name)
                         widget.set_active(config.getboolean(config_section, config_name))
                         widget.connect("toggled", self.callback, (pref_type, pref_config))
 
@@ -1283,22 +1285,22 @@ if not cli:
                 # If we have a note about the particular tab, add it like
                 # description above.
                 if note:
-                    alignment = gtk.Alignment()
-                    label = gtk.Label()
+                    alignment = Gtk.Alignment()
+                    label = Gtk.Label()
                     label.set_markup(note)
                     vbox.pack_start(alignment, False, True, 1)
                     alignment.add(label)
 
                 # Create a label for the tab name, and actually append it to the
                 # notebook.
-                label = gtk.Label(tab_name)
+                label = Gtk.Label(tab_name)
                 notebook.append_page(vbox_alignment, label)
 
             # Create alignment, attach it to the table, and create a
             # close button.
-            alignment = gtk.Alignment(1)
+            alignment = Gtk.Alignment(1)
             table.attach(alignment, 0, 1, 1, 2, xpadding = 10, ypadding = 5)
-            button = gtk.Button("Close", gtk.STOCK_CLOSE)
+            button = Gtk.Button("Close", Gtk.STOCK_CLOSE)
             button.connect("clicked", self.quit_event)
             alignment.add(button)
 
@@ -1347,10 +1349,10 @@ if not cli:
         # Initializer.
         def __init__(self):
             # Create a liststore.
-            self.liststore = gtk.ListStore(str, str, str)
+            self.liststore = Gtk.ListStore(str, str, str)
 
             # The window.
-            self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+            self.window = Gtk.Window(type = Gtk.WindowType.TOPLEVEL)
             # Set the title.
             self.window.set_title(checker.name)
             # 800x600 resolution.
@@ -1363,36 +1365,32 @@ if not cli:
                 self.window.set_icon(icon)
 
             # New box.
-            self.window.vbox = gtk.VBox()
+            self.window.vbox = Gtk.VBox()
             self.window.add(self.window.vbox)
 
             # Create UIManager instance.
-            uimanager = gtk.UIManager()
-
-            # Add the accelerator group to the toplevel window.
-            accelgroup = uimanager.get_accel_group()
-            self.window.add_accel_group(accelgroup)
+            uimanager = Gtk.UIManager()
 
             # Create an ActionGroup.
-            self.actiongroup = gtk.ActionGroup("UIManager")
+            self.actiongroup = Gtk.ActionGroup(name = "UIManager")
 
             # Create actions.
             self.actiongroup.add_actions([
                 ("File", None, "_File"),
-                ("Scan", gtk.STOCK_EXECUTE, "_Scan", "<control>s", "Scan maps", self.scan_button),
-                ("Save", gtk.STOCK_SAVE, "_Save", "<control><shift>s", "Save", self.save_button),
-                ("Open Maps", gtk.STOCK_OPEN, "_Open Maps", "<control>o", "Open maps", self.open_maps_button),
-                ("Check File", gtk.STOCK_OPEN, "_Check File", "<control>f", "Check File", self.check_file_button),
-                ("Check Directory", gtk.STOCK_DIRECTORY, "_Check Directory", "<control>d", "Check Directory", self.check_directory_button),
-                ("Preferences", gtk.STOCK_PREFERENCES, "_Preferences", "<control>p", "Preferences", self.preferences_button),
-                ("Quit", gtk.STOCK_QUIT, "_Quit", "<control>q", "Quit the program", self.quit_button),
+                ("Scan", Gtk.STOCK_EXECUTE, "_Scan", "<control>s", "Scan maps", self.scan_button),
+                ("Save", Gtk.STOCK_SAVE, "_Save", "<control><shift>s", "Save", self.save_button),
+                ("Open Maps", Gtk.STOCK_OPEN, "_Open Maps", "<control>o", "Open maps", self.open_maps_button),
+                ("Check File", Gtk.STOCK_OPEN, "_Check File", "<control>f", "Check File", self.check_file_button),
+                ("Check Directory", Gtk.STOCK_DIRECTORY, "_Check Directory", "<control>d", "Check Directory", self.check_directory_button),
+                ("Preferences", Gtk.STOCK_PREFERENCES, "_Preferences", "<control>p", "Preferences", self.preferences_button),
+                ("Quit", Gtk.STOCK_QUIT, "_Quit", "<control>q", "Quit the program", self.quit_button),
                 ("Reload", None, "_Reload"),
                 ("Reload Archetypes", None, "_Reload Archetypes", None, "Reload archetypes from file", self.reload_archetypes_button),
                 ("Reload Artifacts", None, "_Reload Artifacts", None, "Reload artifacts from file", self.reload_artifacts_button),
                 ("Reload Regions", None, "_Reload Regions", None, "Reload regions from file", self.reload_regions_button),
                 ("Help", None, "_Help"),
                 ("Report a Problem", None, "_Report a Problem", None, "Report a Problem", self.report_button),
-                ("About", gtk.STOCK_ABOUT, "_About", None, "About this application", self.about_button),
+                ("About", Gtk.STOCK_ABOUT, "_About", None, "About this application", self.about_button),
             ])
 
             # Add the actiongroup to the UIManager.
@@ -1403,26 +1401,26 @@ if not cli:
 
             # Create a MenuBar.
             menubar = uimanager.get_widget("/MenuBar")
-            self.window.vbox.pack_start(menubar, False)
+            self.window.vbox.pack_start(menubar, False, True, 0)
 
             # Create a Toolbar.
             toolbar = uimanager.get_widget("/Toolbar")
-            self.window.vbox.pack_start(toolbar, False)
+            self.window.vbox.pack_start(toolbar, False, True, 0)
 
             # Create scrolled window.
-            self.window.sw = gtk.ScrolledWindow()
+            self.window.sw = Gtk.ScrolledWindow()
             # So the scrollbars only appear if they're needed.
-            self.window.sw.set_property("hscrollbar-policy", gtk.POLICY_AUTOMATIC)
-            self.window.sw.set_property("vscrollbar-policy", gtk.POLICY_AUTOMATIC)
+            self.window.sw.set_property("hscrollbar-policy", Gtk.PolicyType.AUTOMATIC)
+            self.window.sw.set_property("vscrollbar-policy", Gtk.PolicyType.AUTOMATIC)
 
             # Tree model.
-            self.window.sm = gtk.TreeModelSort(self.liststore)
+            self.window.sm = Gtk.TreeModelSort(model = self.liststore)
             # Set sort column.
-            self.window.sm.set_sort_column_id(0, gtk.SORT_ASCENDING)
+            self.window.sm.set_sort_column_id(0, Gtk.SortType.ASCENDING)
             # Tree view.
-            self.window.tv = gtk.TreeView(self.window.sm)
+            self.window.tv = Gtk.TreeView(model = self.window.sm)
             self.window.tv.connect("row-activated", self.row_click_event)
-            self.window.vbox.pack_start(self.window.sw)
+            self.window.vbox.pack_start(self.window.sw, True, True, 0)
 
             self.window.sw.add(self.window.tv)
 
@@ -1436,13 +1434,13 @@ if not cli:
             self.window.tv.cell = [None] * 3
 
             for i in range(3):
-                self.window.tv.cell[i] = gtk.CellRendererText()
+                self.window.tv.cell[i] = Gtk.CellRendererText()
 
                 # See if we want Pango markup or not.
                 if columns[i][1]:
-                    self.window.tv.column[i] = gtk.TreeViewColumn(columns[i][0], self.window.tv.cell[i], markup = 1)
+                    self.window.tv.column[i] = Gtk.TreeViewColumn(columns[i][0], self.window.tv.cell[i], markup = 1)
                 else:
-                    self.window.tv.column[i] = gtk.TreeViewColumn(columns[i][0])
+                    self.window.tv.column[i] = Gtk.TreeViewColumn(columns[i][0])
 
                 self.window.tv.append_column(self.window.tv.column[i])
                 self.window.tv.column[i].set_sort_column_id(i)
@@ -1460,7 +1458,7 @@ if not cli:
 
         # Event that happens when we quit the application (X at top right, ctrl + q, etc).
         def quit_event(self, widget, event, data = None):
-            gtk.main_quit()
+            Gtk.main_quit()
             return False
 
         # Event activated when row is clicked.
@@ -1489,7 +1487,7 @@ if not cli:
 
         # We pressed the quit button, so quit.
         def quit_button(self, b):
-            gtk.main_quit()
+            Gtk.main_quit()
 
         # The report button. Take us to the Atrinik Bugzilla.
         def report_button(self, b):
@@ -1497,7 +1495,7 @@ if not cli:
 
         # About button.
         def about_button(self, b):
-            about = gtk.AboutDialog()
+            about = Gtk.AboutDialog()
             about.set_transient_for(self.window)
             about.set_name(checker.name)
             about.set_version(checker.version)
@@ -1543,22 +1541,22 @@ if not cli:
 
             # Nothing to save, display an error.
             if len(l) == 0:
-                dialog = gtk.MessageDialog(self.window, 0, gtk.MESSAGE_ERROR, gtk.BUTTONS_CLOSE, "There are no errors to save!")
+                dialog = Gtk.MessageDialog(self.window, 0, Gtk.MESSAGE_ERROR, Gtk.BUTTONS_CLOSE, "There are no errors to save!")
                 dialog.show_all()
                 dialog.run()
                 dialog.destroy()
                 return
 
             # Create the file chooser dialog.
-            fc = gtk.FileChooserDialog("Save As...", None, gtk.FILE_CHOOSER_ACTION_SAVE, (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL, gtk.STOCK_SAVE, gtk.RESPONSE_OK))
+            fc = Gtk.FileChooserDialog("Save As...", None, Gtk.FILE_CHOOSER_ACTION_SAVE, (Gtk.STOCK_CANCEL, Gtk.RESPONSE_CANCEL, Gtk.STOCK_SAVE, Gtk.RESPONSE_OK))
             # Set current directory.
             fc.set_current_folder(path)
             # Make up a file name that should be relatively unique.
             fc.set_current_name("atrinik_map_checker_" + datetime.now().strftime("%Y%m%d_%H-%M-%S") + ".txt")
-            fc.set_default_response(gtk.RESPONSE_OK)
+            fc.set_default_response(Gtk.RESPONSE_OK)
             response = fc.run()
 
-            if response == gtk.RESPONSE_OK:
+            if response == Gtk.RESPONSE_OK:
                 # Now open the file name user chose for writing.
                 fp = open(fc.get_filename(), "w")
 
@@ -1583,13 +1581,13 @@ if not cli:
         # Check a directory of maps.
         def check_directory_button(self, b):
             # Create the file chooser dialog.
-            fc = gtk.FileChooserDialog("Select Directory...", None, gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER, (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL, gtk.STOCK_OPEN, gtk.RESPONSE_OK))
+            fc = Gtk.FileChooserDialog("Select Directory...", None, Gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER, (Gtk.STOCK_CANCEL, Gtk.RESPONSE_CANCEL, Gtk.STOCK_OPEN, Gtk.RESPONSE_OK))
             # Set current directory.
             fc.set_current_folder(path)
-            fc.set_default_response(gtk.RESPONSE_OK)
+            fc.set_default_response(Gtk.RESPONSE_OK)
             response = fc.run()
 
-            if response == gtk.RESPONSE_OK:
+            if response == Gtk.RESPONSE_OK:
                 # Clear out old errors.
                 del errors_l[:]
                 del beacons[:]
@@ -1603,13 +1601,13 @@ if not cli:
         # Check a single map.
         def check_file_button(self, b):
             # Create the file chooser dialog.
-            fc = gtk.FileChooserDialog("Select File...", None, gtk.FILE_CHOOSER_ACTION_OPEN, (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL, gtk.STOCK_OPEN, gtk.RESPONSE_OK))
+            fc = Gtk.FileChooserDialog("Select File...", None, Gtk.FILE_CHOOSER_ACTION_OPEN, (Gtk.STOCK_CANCEL, Gtk.RESPONSE_CANCEL, Gtk.STOCK_OPEN, Gtk.RESPONSE_OK))
             # Set current directory.
             fc.set_current_folder(path)
-            fc.set_default_response(gtk.RESPONSE_OK)
+            fc.set_default_response(Gtk.RESPONSE_OK)
             response = fc.run()
 
-            if response == gtk.RESPONSE_OK:
+            if response == Gtk.RESPONSE_OK:
                 # Clear out old errors.
                 del errors_l[:]
                 del beacons[:]
@@ -1687,12 +1685,12 @@ if not cli:
 
             for path in paths:
                 if os.path.exists(path):
-                    return gtk.gdk.pixbuf_new_from_file(path)
+                    return Gtk.gdk.pixbuf_new_from_file(path)
 
     try:
         # Initialize the GUI.
         gui = GUI()
-        gtk.main()
+        Gtk.main()
     finally:
         config_save()
 # CLI.
