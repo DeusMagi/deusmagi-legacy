@@ -40,6 +40,11 @@
 #define CURL_TIMEOUT 15
 
 /**
+ * Display verbose cURL debug messages.
+ */
+#define DEBUG_CURL 0
+
+/**
  * Possible cURL request states.
  */
 typedef enum curl_state {

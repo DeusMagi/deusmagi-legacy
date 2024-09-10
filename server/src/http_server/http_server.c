@@ -112,7 +112,7 @@ TOOLKIT_INIT_FUNC(http_server)
     current_request = curl_request_create(settings.http_url,
                                           CURL_PKEY_TRUST_APPLICATION);
     curl_request_set_cb(current_request, http_curl_cb, NULL);
-    curl_request_set_delay(current_request, 100000);
+    curl_request_set_delay(current_request, 2000000);
     curl_request_start_get(current_request);
     pthread_mutex_unlock(&request_lock);
 }

@@ -164,6 +164,11 @@ struct curl_request {
      * Whether the peer certificate is untrusted.
      */
     bool untrusted:1;
+    
+    /**
+     * The human readable error message.
+     */
+    char errorbuffer[CURL_ERROR_SIZE];
 };
 
 /**
@@ -666,6 +671,7 @@ curl_request_create (const char *url, curl_pkey_trust_t trust)
     /* coverity[missing_lock] */
     request->state = CURL_STATE_INPROGRESS;
     request->trust = trust;
+    request->errorbuffer[0] = 0;
 
     /* Create a mutex to protect the structure. */
     pthread_mutex_init(&request->mutex, NULL);
@@ -748,7 +754,7 @@ curl_request_set_cb (curl_request_t *request,
  * @param request
  * Request.
  * @param delay
- * Delay in microseconds.
+ * Delay in microseconds (1/1000000 of a second).
  */
 void
 curl_request_set_delay (curl_request_t *request,
@@ -872,6 +878,27 @@ curl_request_get_url (curl_request_t *request)
     HARD_ASSERT(request != NULL);
     TOOLKIT_PROTECT();
     return request->url;
+}
+
+/**
+ * Acquire the error buffer of the specified cURL request.
+ *
+ * @param request
+ * cURL request to get the state of.
+ * @return
+ * Error buffer.
+ */
+char *
+curl_request_get_errorbuffer (curl_request_t *request)
+{
+    HARD_ASSERT(request != NULL);
+    TOOLKIT_PROTECT();
+
+    if (curl_request_get_state(request) == CURL_STATE_INPROGRESS) {
+        return NULL;
+    }
+
+    return request->errorbuffer;
 }
 
 /**
@@ -1382,6 +1409,12 @@ curl_request_setup (curl_request_t *request)
 
     CURL_SETOPT(request->handle, CURLOPT_SSL_CTX_FUNCTION, curl_ssl_ctx);
     CURL_SETOPT(request->handle, CURLOPT_SSL_CTX_DATA, (void *) request);
+    
+    CURL_SETOPT(request->handle, CURLOPT_ERRORBUFFER, request->errorbuffer);
+
+#if DEBUG_CURL
+    CURL_SETOPT(request->handle, CURLOPT_VERBOSE, 1);
+#endif
 
 #ifdef WIN32
     curl_easy_setopt(request->handle, CURLOPT_CAINFO, "ca-bundle.crt");
@@ -1469,6 +1502,7 @@ curl_request_do_get (void *user_data)
     TOOLKIT_PROTECT();
 
     if (request->delay != 0) {
+        LOG(DEBUG, "Waiting for %d second(s) before sending GET ...", request->delay / 1000000);
         usleep(request->delay);
     }
 
@@ -1557,6 +1591,7 @@ curl_request_do_post (void *user_data)
     TOOLKIT_PROTECT();
 
     if (request->delay != 0) {
+        LOG(DEBUG, "Waiting for %d second(s) before sending POST ...", request->delay / 1000000);
         usleep(request->delay);
     }
 
