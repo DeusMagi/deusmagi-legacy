@@ -1407,8 +1407,12 @@ curl_request_setup (curl_request_t *request)
     /* Set user agent. */
     CURL_SETOPT(request->handle, CURLOPT_USERAGENT, curl_user_agent);
 
-    CURL_SETOPT(request->handle, CURLOPT_SSL_CTX_FUNCTION, curl_ssl_ctx);
-    CURL_SETOPT(request->handle, CURLOPT_SSL_CTX_DATA, (void *) request);
+    /* Disabled secure connections until we can get them working properly */
+    // CURL_SETOPT(request->handle, CURLOPT_SSL_CTX_FUNCTION, curl_ssl_ctx);
+    // CURL_SETOPT(request->handle, CURLOPT_SSL_CTX_DATA, (void *) request);
+    
+    CURL_SETOPT(request->handle, CURLOPT_SSL_VERIFYPEER, 0);
+    CURL_SETOPT(request->handle, CURLOPT_SSL_VERIFYHOST, 0);
     
     CURL_SETOPT(request->handle, CURLOPT_ERRORBUFFER, request->errorbuffer);
 
