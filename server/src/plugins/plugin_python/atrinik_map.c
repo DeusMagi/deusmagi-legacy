@@ -1119,6 +1119,8 @@ int Atrinik_Map_init(PyObject *module)
 
     Atrinik_MapType.tp_new = PyType_GenericNew;
     Atrinik_MapType.tp_name = "Atrinik.Map";
+    Atrinik_MapType.tp_methods = MapMethods;
+    Atrinik_MapType.tp_getset = getseters;
 
     if (PyType_Ready(&Atrinik_MapType) < 0) {
         return 0;

@@ -709,7 +709,7 @@ static PyObject *compilePython(char *filename)
         n[filesize] = '\0';
         
         if (n) {
-            code = Py_CompileString(n, filename, 0);
+            code = Py_CompileString(n, filename, Py_file_input);
         }
 
         fclose(fp);
@@ -841,11 +841,7 @@ static int do_script(PythonContext *context, const char *filename)
             PyDict_SetItemString(dict, "msg", Py_BuildValue(""));
         }
 
-#if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 2
-        ret = PyEval_EvalCode((PyObject *) pycode, dict, NULL);
-#else
         ret = PyEval_EvalCode(pycode, dict, NULL);
-#endif
 
         if (PyErr_Occurred()) {
             PyErr_LOG();
@@ -2222,12 +2218,7 @@ static int handle_global_event(int event_type, va_list args)
 
             DL_DELETE(python_eval, eval);
 
-#if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 2
-            ret = PyEval_EvalCode((PyObject *) eval->code, eval->globals,
-                    eval->locals);
-#else
             ret = PyEval_EvalCode(eval->code, eval->globals, eval->locals);
-#endif
 
             if (PyErr_Occurred()) {
                 PyErr_LOG();

@@ -203,6 +203,7 @@ int Atrinik_Archetype_init(PyObject *module)
 
     Atrinik_ArchetypeType.tp_new = PyType_GenericNew;
     Atrinik_ArchetypeType.tp_name = "Atrinik.Archetype";
+    Atrinik_ArchetypeType.tp_getset = getseters;
 
     if (PyType_Ready(&Atrinik_ArchetypeType) < 0) {
         return 0;

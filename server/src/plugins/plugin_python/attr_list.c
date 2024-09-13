@@ -785,6 +785,9 @@ int Atrinik_AttrList_init(PyObject *module)
 {
     Atrinik_AttrListType.tp_new = PyType_GenericNew;
     Atrinik_AttrListType.tp_name = "Atrinik.AttrList";
+    Atrinik_AttrListType.tp_methods = methods;
+    Atrinik_AttrListType.tp_iter = (getiterfunc) iter;
+    Atrinik_AttrListType.tp_iternext = (iternextfunc) iternext;
 
     if (PyType_Ready(&Atrinik_AttrListType) < 0) {
         return 0;
