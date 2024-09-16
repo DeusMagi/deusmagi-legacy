@@ -146,46 +146,6 @@ static PyObject *Atrinik_Region_RichCompare(Atrinik_Region *left,
  */
 static PyGetSetDef getseters[NUM_FIELDS + 1];
 
-/** Our actual Python RegionType. */
-PyTypeObject Atrinik_RegionType = {
-#ifdef IS_PY3K
-    PyVarObject_HEAD_INIT(NULL, 0)
-#else
-    PyObject_HEAD_INIT(NULL)
-    0,
-#endif
-    "Atrinik.Region",
-    sizeof(Atrinik_Region),
-    0,
-    (destructor) Atrinik_Region_dealloc,
-    NULL, NULL, NULL,
-#ifdef IS_PY3K
-    NULL,
-#else
-    (cmpfunc) Atrinik_Region_InternalCompare,
-#endif
-    0, 0, 0, 0, 0, 0,
-    (reprfunc) Atrinik_Region_str,
-    0, 0, 0,
-    Py_TPFLAGS_DEFAULT,
-    "Atrinik regions",
-    NULL, NULL,
-    (richcmpfunc) Atrinik_Region_RichCompare,
-    0, 0, 0,
-    NULL,
-    0,
-    getseters,
-    0, 0, 0, 0, 0, 0, 0,
-    Atrinik_Region_new,
-    0, 0, 0, 0, 0, 0, 0, 0
-#ifndef IS_PY_LEGACY
-    , 0
-#endif
-#ifdef Py_TPFLAGS_HAVE_FINALIZE
-    , NULL
-#endif
-};
-
 /**
  * Initialize the region wrapper.
  * @param module
@@ -210,9 +170,13 @@ int Atrinik_Region_init(PyObject *module)
 
     getseters[i].name = NULL;
 
-    Atrinik_RegionType.tp_new = PyType_GenericNew;
     Atrinik_RegionType.tp_name = "Atrinik.Region";
+    Atrinik_RegionType.tp_dealloc = (destructor) Atrinik_Region_dealloc;
+    Atrinik_RegionType.tp_repr = (reprfunc) Atrinik_Region_str;
+    Atrinik_RegionType.tp_doc = "Atrinik regions";
+    Atrinik_RegionType.tp_richcompare = (richcmpfunc) Atrinik_Region_RichCompare;
     Atrinik_RegionType.tp_getset = getseters;
+    Atrinik_RegionType.tp_new = Atrinik_Region_new;
 
     if (PyType_Ready(&Atrinik_RegionType) < 0) {
         return 0;

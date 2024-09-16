@@ -2690,52 +2690,6 @@ static PyNumberMethods AtrinikObjectNumber = {
 };
 
 /**
- * Our actual Python ObjectType.
- */
-PyTypeObject Atrinik_ObjectType = {
-#ifdef IS_PY3K
-    PyVarObject_HEAD_INIT(NULL, 0)
-#else
-    PyObject_HEAD_INIT(NULL)
-    0,
-#endif
-    "Atrinik.Object",
-    sizeof(Atrinik_Object),
-    0,
-    (destructor) Atrinik_Object_dealloc,
-    NULL, NULL, NULL,
-#ifdef IS_PY3K
-    NULL,
-#else
-    (cmpfunc) Atrinik_Object_InternalCompare,
-#endif
-    NULL,
-    &AtrinikObjectNumber,
-    0, 0, 0, 0,
-    (reprfunc) Atrinik_Object_str,
-    0, 0, 0,
-    Py_TPFLAGS_DEFAULT,
-    "Atrinik objects",
-    NULL, NULL,
-    (richcmpfunc) Atrinik_Object_RichCompare,
-    0,
-    NULL,
-    NULL,
-    methods,
-    0,
-    getseters,
-    0, 0, 0, 0, 0, 0, 0,
-    Atrinik_Object_new,
-    0, 0, 0, 0, 0, 0, 0, 0
-#ifndef IS_PY_LEGACY
-    , 0
-#endif
-#ifdef Py_TPFLAGS_HAVE_FINALIZE
-    , NULL
-#endif
-};
-
-/**
  * Free an object iterator wrapper.
  * @param self
  * The wrapper to free.
@@ -2990,41 +2944,6 @@ static PySequenceMethods Atrinik_ObjectIteratorSequence = {
 };
 
 /**
- * The Atrinik.ObjectIterator type.
- */
-PyTypeObject Atrinik_ObjectIteratorType = {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "Atrinik.ObjectIterator",
-    sizeof(Atrinik_ObjectIterator),
-    0,
-    (destructor) Atrinik_ObjectIterator_dealloc,
-    NULL, NULL, NULL,
-    NULL,
-    NULL,
-    &Atrinik_ObjectIteratorNumber,
-    &Atrinik_ObjectIteratorSequence,
-    0, 0, 0,
-    (reprfunc) Atrinik_ObjectIterator_str,
-    0, 0, 0,
-    Py_TPFLAGS_DEFAULT,
-    "Used for iterating object inventories.",
-    NULL, NULL,
-    NULL,
-    0,
-    (getiterfunc) Atrinik_ObjectIterator_iter,
-    (iternextfunc) Atrinik_ObjectIterator_iternext,
-    NULL,
-    0,
-    NULL,
-    0, 0, 0, 0, 0, 0, 0,
-    PyType_GenericNew,
-    0, 0, 0, 0, 0, 0, 0, 0, 0
-#ifdef Py_TPFLAGS_HAVE_FINALIZE
-    , NULL
-#endif
-};
-
-/**
  * Initialize the Atrinik.Object module.
  * @param module
  * The Atrinik.Object module.
@@ -3065,10 +2984,15 @@ int Atrinik_Object_init(PyObject *module)
 
     getseters[i].name = NULL;
 
-    Atrinik_ObjectType.tp_new = PyType_GenericNew;
     Atrinik_ObjectType.tp_name = "Atrinik.Object";
+    Atrinik_ObjectType.tp_dealloc = (destructor) Atrinik_Object_dealloc;
+    Atrinik_ObjectType.tp_repr = (reprfunc) Atrinik_Object_str;
+    Atrinik_ObjectType.tp_as_number = &AtrinikObjectNumber;
+    Atrinik_ObjectType.tp_doc = "Atrinik objects";
+    Atrinik_ObjectType.tp_richcompare = (richcmpfunc) Atrinik_Object_RichCompare;
     Atrinik_ObjectType.tp_methods = methods;
     Atrinik_ObjectType.tp_getset = getseters;
+    Atrinik_ObjectType.tp_new = Atrinik_Object_new;
 
     if (PyType_Ready(&Atrinik_ObjectType) < 0) {
         return 0;
@@ -3078,8 +3002,14 @@ int Atrinik_Object_init(PyObject *module)
     PyModule_AddObject(module, "Object", (PyObject *) &Atrinik_ObjectType);
 
     Atrinik_ObjectIteratorType.tp_name = "Atrinik.ObjectIterator";
+    Atrinik_ObjectIteratorType.tp_dealloc = (destructor) Atrinik_ObjectIterator_dealloc;
+    Atrinik_ObjectIteratorType.tp_repr = (reprfunc) Atrinik_ObjectIterator_str;
+    Atrinik_ObjectIteratorType.tp_as_number = &Atrinik_ObjectIteratorNumber;
+    Atrinik_ObjectIteratorType.tp_as_sequence = &Atrinik_ObjectIteratorSequence;
+    Atrinik_ObjectIteratorType.tp_doc = "Used for iterating object inventories.";
     Atrinik_ObjectIteratorType.tp_iter = (getiterfunc) Atrinik_ObjectIterator_iter;
     Atrinik_ObjectIteratorType.tp_iternext = (iternextfunc) Atrinik_ObjectIterator_iternext;
+    Atrinik_ObjectIteratorType.tp_new = PyType_GenericNew;
     
     if (PyType_Ready(&Atrinik_ObjectIteratorType) < 0) {
         return 0;

@@ -123,6 +123,9 @@ def open_doc_file(path):
 
 def dump_obj(obj, f, indent=0, defaults=None):
     names = []
+    imports = []
+    instances = []
+    
     l = dir(obj)
     if defaults is not None:
         l += list(defaults.keys())
@@ -144,7 +147,7 @@ def dump_obj(obj, f, indent=0, defaults=None):
             doc = defaults[tmp_name][1]
 
         if inspect.ismodule(tmp):
-            f.write("import Atrinik.{name} as {name}\n".format(name=tmp_name))
+            imports.append("import Atrinik.{name} as {name}\n".format(name=tmp_name))
 
             with open_doc_file(os.path.join(PATH, tmp_name + ".py")) as f2:
                 dump_docstring(tmp, f2, indent)
@@ -187,15 +190,7 @@ def dump_obj(obj, f, indent=0, defaults=None):
             f.write("pass\n")
         elif isinstance(tmp, (Object.Object, Map.Map, Archetype.Archetype,
                               Player.Player)):
-            f.write(" " * indent * 4)
-            # noinspection PyUnresolvedReferences
-            f.write("{} = {cls_name}.{cls_name}()\n".format(
-                tmp_name, cls_name=tmp.__class__.__name__))
-
-            if not doc:
-                doc = tmp_name.replace("_", " ").title()
-
-            dump_docstring(tmp, f, indent, doc=doc)
+            instances.append([tmp, tmp_name, doc, indent])
         elif inspect.isclass(obj):
             f.write("\n")
             f.write(" " * indent * 4)
@@ -250,7 +245,23 @@ def dump_obj(obj, f, indent=0, defaults=None):
             dump_docstring(tmp, f, indent, doc=doc)
 
         names.append(repr(tmp_name))
+    
+    for imp in imports:
+        f.write(imp)
 
+    for ins in instances:
+        tmp, tmp_name, doc, indent = ins
+        
+        f.write(" " * indent * 4)
+        # noinspection PyUnresolvedReferences
+        f.write("{} = {cls_name}.{cls_name}()\n".format(
+            tmp_name, cls_name=tmp.__class__.__name__))
+
+        if not doc:
+            doc = tmp_name.replace("_", " ").title()
+
+        dump_docstring(tmp, f, indent, doc=doc)
+        
     return names
 
 

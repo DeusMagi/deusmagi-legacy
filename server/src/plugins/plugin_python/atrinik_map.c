@@ -1036,46 +1036,6 @@ static PyObject *Atrinik_Map_RichCompare(Atrinik_Map *left, Atrinik_Map *right,
 /** This is filled in when we initialize our map type. */
 static PyGetSetDef getseters[NUM_FIELDS + NUM_MAPFLAGS + 1];
 
-/** Our actual Python MapType. */
-PyTypeObject Atrinik_MapType = {
-#ifdef IS_PY3K
-    PyVarObject_HEAD_INIT(NULL, 0)
-#else
-    PyObject_HEAD_INIT(NULL)
-    0,
-#endif
-    "Atrinik.Map",
-    sizeof(Atrinik_Map),
-    0,
-    (destructor) Atrinik_Map_dealloc,
-    NULL, NULL, NULL,
-#ifdef IS_PY3K
-    NULL,
-#else
-    (cmpfunc) Atrinik_Map_InternalCompare,
-#endif
-    0, 0, 0, 0, 0, 0,
-    (reprfunc) Atrinik_Map_str,
-    0, 0, 0,
-    Py_TPFLAGS_DEFAULT,
-    "Atrinik maps",
-    NULL, NULL,
-    (richcmpfunc) Atrinik_Map_RichCompare,
-    0, 0, 0,
-    MapMethods,
-    0,
-    getseters,
-    0, 0, 0, 0, 0, 0, 0,
-    Atrinik_Map_new,
-    0, 0, 0, 0, 0, 0, 0, 0
-#ifndef IS_PY_LEGACY
-    , 0
-#endif
-#ifdef Py_TPFLAGS_HAVE_FINALIZE
-    , NULL
-#endif
-};
-
 /**
  * Initialize the map wrapper.
  * @param module
@@ -1117,10 +1077,14 @@ int Atrinik_Map_init(PyObject *module)
 
     getseters[i].name = NULL;
 
-    Atrinik_MapType.tp_new = PyType_GenericNew;
     Atrinik_MapType.tp_name = "Atrinik.Map";
+    Atrinik_MapType.tp_dealloc = (destructor) Atrinik_Map_dealloc;
+    Atrinik_MapType.tp_repr = (reprfunc) Atrinik_Map_str;
+    Atrinik_MapType.tp_doc = "Atrinik maps";
+    Atrinik_MapType.tp_richcompare = (richcmpfunc) Atrinik_Map_RichCompare;
     Atrinik_MapType.tp_methods = MapMethods;
     Atrinik_MapType.tp_getset = getseters;
+    Atrinik_MapType.tp_new = Atrinik_Map_new;
 
     if (PyType_Ready(&Atrinik_MapType) < 0) {
         return 0;
