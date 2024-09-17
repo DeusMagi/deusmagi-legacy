@@ -18,7 +18,10 @@ class QuestManager:
     """
     Simple quest manager implementation.
     """
-
+    
+    quest = None;
+    quest_object = None;
+    
     def __init__(self, activator, quest):
         """
         Initialize the quest manager.

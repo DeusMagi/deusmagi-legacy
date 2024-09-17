@@ -46,8 +46,8 @@ class Interface:
         self._scroll_bottom = None
         self._autocomplete = None
 
-        if npc:
-            self.set_anim(npc.animation[1], npc.anim_speed, npc.direction)
+        if npc is not None and npc.anim is not None:
+            self.set_anim(npc.anim[1], npc.anim_speed, npc.direction)
             self.set_title(npc.name)
 
     @staticmethod
@@ -682,7 +682,8 @@ class InterfaceBuilder(Interface):
             elif self.qm.failed():
                 dialog = "failed"
             else:
-                self._check_parts(self.qm.quest["parts"])
+                if self.qm.quest is not None:
+                    self._check_parts(self.qm.quest["parts"])
 
         if dialog and self.dialog_name + "_" + dialog in self.locals:
             self.dialog_name += "_" + dialog
@@ -692,24 +693,26 @@ class InterfaceBuilder(Interface):
             self.preconds(self)
 
         self.dbg("Handling with dialog: {}", self.dialog_name)
-        c = self.locals[self.dialog_name](self._activator, self._npc)
-        c.set_quest(self.qm)
-        c.part = self.part
+        
+        if self.dialog_name in self.locals:
+            c = self.locals[self.dialog_name](self._activator, self._npc)
+            c.set_quest(self.qm)
+            c.part = self.part
 
-        if not c.precond():
-            Interface.send(c)
-            return
-
-        for expr, callback in c.matchers:
-            if re.match(expr, msg, re.I):
-                callback(c)
+            if not c.precond():
                 Interface.send(c)
                 return
 
-        fnc = getattr(c, "dialog_" + msg.lower().replace(" ", "_"), None)
-        if fnc is None:
-            c.dialog(msg)
-        else:
-            fnc()
+            for expr, callback in c.matchers:
+                if re.match(expr, msg, re.I):
+                    callback(c)
+                    Interface.send(c)
+                    return
 
-        Interface.send(c)
+            fnc = getattr(c, "dialog_" + msg.lower().replace(" ", "_"), None)
+            if fnc is None:
+                c.dialog(msg)
+            else:
+                fnc()
+
+            Interface.send(c)

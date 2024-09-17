@@ -194,6 +194,13 @@ def dump_obj(obj, f, indent=0, defaults=None):
         elif inspect.isclass(obj):
             f.write("\n")
             f.write(" " * indent * 4)
+            
+            # define the property
+            f.write("{} = None;\n".format("_" + tmp_name))
+            
+            f.write("\n")
+            f.write(" " * indent * 4)
+            
             f.write("# noinspection PyUnusedLocal,PyPep8Naming,"
                     "PyMethodMayBeStatic\n")
             f.write(" " * indent * 4)
@@ -203,12 +210,12 @@ def dump_obj(obj, f, indent=0, defaults=None):
             types = dump_docstring(tmp, f, indent + 1, is_getter=True,
                                    obj_name=tmp_name)
             f.write(" " * (indent + 1) * 4)
-            f.write("value = getattr(self, {})\n".format(repr(tmp_name)))
+            f.write("value = getattr(self, {})\n".format(repr("_" + tmp_name)))
 
             if types is not None:
                 f.write(" " * (indent + 1) * 4)
                 f.write("assert isinstance(value, ({},))\n".format(
-                    ", ".join(types)))
+                    ", ".join(types) + ", type(None)"))
 
             f.write(" " * (indent + 1) * 4)
             f.write("return value\n\n")
@@ -222,7 +229,7 @@ def dump_obj(obj, f, indent=0, defaults=None):
             dump_docstring(tmp, f, indent + 1, is_setter=True,
                            obj_name=tmp_name)
             f.write(" " * (indent + 1) * 4)
-            f.write("setattr(self, {}, value)\n".format(repr(tmp_name)))
+            f.write("setattr(self, {}, value)\n".format(repr("_" + tmp_name)))
         else:
             subsequent_indent = len(tmp_name) + 4
             line = " " * indent * 4

@@ -271,13 +271,13 @@ static fields_struct fields[] = {
             "ways to set object's face. You can use the face name (obj.face = "
             "'eyes.101'), the ID (obj.face = 1000), or the tuple returned by a "
             "previous call to obj.face.; str or int or tuple"},
-    {"animation", FIELDTYPE_ANIMATION, offsetof(object, animation_id), 0, 0,
+    {"anim", FIELDTYPE_ANIMATION, offsetof(object, animation_id), 0, 0,
             "Returns the object's animation in a tuple containing the "
             "animation name as string, and the animation ID as integer.\nThere "
             "are a few different ways to set object's animation. You can use "
             "the animation name (obj.animation = 'raas'), the ID"
-            "(obj.animation = 100), or the tuple returned by a previous call "
-            "to obj.animation.; str or int or tuple"},
+            "(obj.anim = 100), or the tuple returned by a previous call "
+            "to obj.anim.; str or int or tuple"},
     {"inv_animation", FIELDTYPE_ANIMATION, offsetof(object, inv_animation_id),
             0, 0, "Returns the object's inventory animation in a tuple "
             "containing the animation name as string, and the animation ID as"
