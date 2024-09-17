@@ -2394,23 +2394,18 @@ MODULEAPI void postinitPlugin(void)
     PyGILState_Release(gilstate);
 }
 
-#ifdef IS_PY3K
-static PyModuleDef AtrinikModule = {
-    PyModuleDef_HEAD_INIT,
-    "Atrinik",
-    NULL,
-    -1,
-    AtrinikMethods,
-    NULL, NULL, NULL, NULL
-};
+static PyModuleDef AtrinikModule;
 
 static PyObject *PyInit_Atrinik(void)
 {
+    AtrinikModule.m_name = "Atrinik";
+    AtrinikModule.m_size = -1;
+    AtrinikModule.m_methods = AtrinikMethods;
+    
     PyObject *m = PyModule_Create(&AtrinikModule);
     Py_INCREF(m);
     return m;
 }
-#endif
 
 /**
  * Create a module.
