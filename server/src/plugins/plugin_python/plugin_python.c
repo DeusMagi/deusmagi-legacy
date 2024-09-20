@@ -572,9 +572,9 @@ static PyObject *py_runfile(const char *path, PyObject *globals,
     char *fullpath;
     FILE *fp;
     PyObject *ret = NULL;
-
+    
     fullpath = strdup(hooks->create_pathname(path));
-
+    
     fp = fopen(fullpath, "r");
 
     if (fp) {
@@ -592,12 +592,13 @@ static PyObject *py_runfile(const char *path, PyObject *globals,
         efree(cp);
 #else
         ret = PyRun_File(fp, fullpath, Py_file_input, globals, locals);
+        
         fclose(fp);
 #endif
     }
 
     free(fullpath);
-
+    
     return ret;
 }
 
@@ -612,14 +613,14 @@ static PyObject *py_runfile(const char *path, PyObject *globals,
 static void py_runfile_simple(const char *path, PyObject *locals)
 {
     PyObject *globals, *ret;
-
+    
     /* Construct globals dictionary. */
     globals = PyDict_New();
     PyDict_SetItemString(globals, "__builtins__", PyEval_GetBuiltins());
-
+    
     /* Run the Python code. */
     ret = py_runfile(path, globals, locals);
-
+    
     Py_DECREF(globals);
     Py_XDECREF(ret);
 }
@@ -632,26 +633,29 @@ static void PyErr_LOG(void)
 {
     PyObject *locals;
     PyObject *ptype, *pvalue, *ptraceback;
-
+    
     /* Fetch the exception data. */
     PyErr_Fetch(&ptype, &pvalue, &ptraceback);
     PyErr_NormalizeException(&ptype, &pvalue, &ptraceback);
-
+    
+    PyErr_Display(ptype, pvalue, ptraceback);
+    PyTraceBack_Print(ptraceback, pvalue);
+    
     /* Construct locals dictionary, with the exception data. */
     locals = PyDict_New();
     PyDict_SetItemString(locals, "exc_type", ptype);
     PyDict_SetItemString(locals, "exc_value", pvalue);
-
+    
     if (ptraceback != NULL) {
         PyDict_SetItemString(locals, "exc_traceback", ptraceback);
     } else {
         Py_INCREF(Py_None);
         PyDict_SetItemString(locals, "exc_traceback", Py_None);
     }
-
+    
     py_runfile_simple("/python/events/python_exception.py", locals);
+    
     Py_DECREF(locals);
-
     Py_XDECREF(ptype);
     Py_XDECREF(pvalue);
     Py_XDECREF(ptraceback);
@@ -775,6 +779,7 @@ static int do_script(PythonContext *context, const char *filename)
 
             dirname = hooks->path_dirname(filename);
             path = hooks->path_join(dirname, inf_filename);
+            
             efree(dirname);
         } else {
             char *cp;
@@ -790,6 +795,9 @@ static int do_script(PythonContext *context, const char *filename)
 
     gilstate = PyGILState_Ensure();
 
+    LOG(DEVEL, "Compiling the Python script %s", 
+        hooks->create_pathname(context->event != NULL ? context->event->race : filename));
+    
     pycode = compilePython(hooks->create_pathname(
             context->event != NULL ? context->event->race : filename));
     if (pycode != NULL) {
@@ -841,17 +849,20 @@ static int do_script(PythonContext *context, const char *filename)
             PyDict_SetItemString(dict, "msg", Py_BuildValue(""));
         }
 
+        LOG(DEVEL, "Eval the Python code ...");
+        
         ret = PyEval_EvalCode(pycode, dict, NULL);
+        
+        LOG(DEVEL, "Eval Done");
 
         if (PyErr_Occurred()) {
             PyErr_LOG();
         }
-
+        
         Py_XDECREF(ret);
         Py_DECREF(dict);
-
         PyGILState_Release(gilstate);
-
+        
         return 1;
     }
 

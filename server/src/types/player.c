@@ -2592,6 +2592,7 @@ player_get_dummy (const char *name, const char *host)
                                SOCKET_ROLE_SERVER,
                                false);
     if (pl->cs->sc == NULL) {
+        LOG(ERROR, "Failed to create player socket");
         abort();
     }
 
