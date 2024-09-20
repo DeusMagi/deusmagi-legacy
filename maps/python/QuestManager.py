@@ -32,7 +32,7 @@ class QuestManager:
         :type quest: dict
         """
 
-        if activator.type != Atrinik.Type.PLAYER:
+        if activator is None or activator.type != Atrinik.Type.PLAYER:
             return
 
         self.activator = activator

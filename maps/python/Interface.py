@@ -7,7 +7,7 @@ import re
 import Atrinik
 import Language
 
-DEBUG = False
+DEBUG = True
 
 
 class Interface:

@@ -1506,7 +1506,7 @@ curl_request_do_get (void *user_data)
     TOOLKIT_PROTECT();
 
     if (request->delay != 0) {
-        LOG(DEBUG, "Waiting for %d second(s) before sending GET ...", request->delay / 1000000);
+        LOG(DEVEL, "Waiting for %d second(s) before sending GET ...", request->delay / 1000000);
         usleep(request->delay);
     }
 
