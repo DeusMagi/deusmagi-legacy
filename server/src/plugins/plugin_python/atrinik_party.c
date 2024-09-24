@@ -335,6 +335,8 @@ int Atrinik_Party_init(PyObject *module)
     getseters[i].name = NULL;
 
     Atrinik_PartyType.tp_name = "Atrinik.Party";
+    Atrinik_PartyType.tp_alloc = PyType_GenericAlloc;
+    Atrinik_PartyType.tp_basicsize = sizeof(Atrinik_Party);
     Atrinik_PartyType.tp_dealloc = (destructor) Atrinik_Party_dealloc;
     Atrinik_PartyType.tp_repr = (reprfunc) Atrinik_Party_str;
     Atrinik_PartyType.tp_doc = "Atrinik parties";

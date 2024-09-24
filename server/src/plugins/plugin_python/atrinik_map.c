@@ -1078,6 +1078,8 @@ int Atrinik_Map_init(PyObject *module)
     getseters[i].name = NULL;
 
     Atrinik_MapType.tp_name = "Atrinik.Map";
+    Atrinik_MapType.tp_alloc = PyType_GenericAlloc;
+    Atrinik_MapType.tp_basicsize = sizeof(Atrinik_Map);
     Atrinik_MapType.tp_dealloc = (destructor) Atrinik_Map_dealloc;
     Atrinik_MapType.tp_repr = (reprfunc) Atrinik_Map_str;
     Atrinik_MapType.tp_doc = "Atrinik maps";

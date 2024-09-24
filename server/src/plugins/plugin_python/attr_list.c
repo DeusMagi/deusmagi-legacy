@@ -743,6 +743,8 @@ static PyMappingMethods MappingMethods = {
 int Atrinik_AttrList_init(PyObject *module)
 {
     Atrinik_AttrListType.tp_name = "Atrinik.AttrList";
+    Atrinik_AttrListType.tp_alloc = PyType_GenericAlloc;
+    Atrinik_AttrListType.tp_basicsize = sizeof(Atrinik_AttrList);
     Atrinik_AttrListType.tp_as_sequence = &SequenceMethods;
     Atrinik_AttrListType.tp_as_mapping = &MappingMethods;
     Atrinik_AttrListType.tp_doc = "Atrinik attr lists";

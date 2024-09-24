@@ -345,8 +345,6 @@ class Interface:
         if not self._msg and not self._restore:
             return
 
-        pl = self._activator.Controller()
-
         if self._npc:
             Atrinik.SetReturnValue(-1 if self._restore else len(self._msg))
 
@@ -410,6 +408,7 @@ class Interface:
             data += [14] + obj_data
 
         # Send the data.
+        pl = self._activator.Controller()
         pl.SendPacket(26, fmt, *data)
 
 

@@ -162,6 +162,8 @@ int Atrinik_Archetype_init(PyObject *module)
     getseters[i].name = NULL;
 
     Atrinik_ArchetypeType.tp_name = "Atrinik.Archetype";
+    Atrinik_ArchetypeType.tp_alloc = PyType_GenericAlloc;
+    Atrinik_ArchetypeType.tp_basicsize = sizeof(Atrinik_Archetype);
     Atrinik_ArchetypeType.tp_dealloc = (destructor) Atrinik_Archetype_dealloc;
     Atrinik_ArchetypeType.tp_repr = (reprfunc) Atrinik_Archetype_str;
     Atrinik_ArchetypeType.tp_doc = "Atrinik archetypes";

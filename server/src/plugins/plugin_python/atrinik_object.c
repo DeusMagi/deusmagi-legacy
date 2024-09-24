@@ -2985,6 +2985,8 @@ int Atrinik_Object_init(PyObject *module)
     getseters[i].name = NULL;
 
     Atrinik_ObjectType.tp_name = "Atrinik.Object";
+    Atrinik_ObjectType.tp_alloc = PyType_GenericAlloc;
+    Atrinik_ObjectType.tp_basicsize = sizeof(Atrinik_Object);
     Atrinik_ObjectType.tp_dealloc = (destructor) Atrinik_Object_dealloc;
     Atrinik_ObjectType.tp_repr = (reprfunc) Atrinik_Object_str;
     Atrinik_ObjectType.tp_as_number = &AtrinikObjectNumber;
@@ -3002,6 +3004,8 @@ int Atrinik_Object_init(PyObject *module)
     PyModule_AddObject(module, "Object", (PyObject *) &Atrinik_ObjectType);
 
     Atrinik_ObjectIteratorType.tp_name = "Atrinik.ObjectIterator";
+    Atrinik_ObjectIteratorType.tp_alloc = PyType_GenericAlloc;
+    Atrinik_ObjectIteratorType.tp_basicsize = sizeof(Atrinik_ObjectIterator);
     Atrinik_ObjectIteratorType.tp_dealloc = (destructor) Atrinik_ObjectIterator_dealloc;
     Atrinik_ObjectIteratorType.tp_repr = (reprfunc) Atrinik_ObjectIterator_str;
     Atrinik_ObjectIteratorType.tp_as_number = &Atrinik_ObjectIteratorNumber;

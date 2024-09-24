@@ -1148,6 +1148,8 @@ int Atrinik_Player_init(PyObject *module)
     getseters[i].name = NULL;
 
     Atrinik_PlayerType.tp_name = "Atrinik.Player";
+    Atrinik_PlayerType.tp_alloc = PyType_GenericAlloc;
+    Atrinik_PlayerType.tp_basicsize = sizeof(Atrinik_Player);
     Atrinik_PlayerType.tp_dealloc = (destructor) Atrinik_Player_dealloc;
     Atrinik_PlayerType.tp_repr = (reprfunc) Atrinik_Player_str;
     Atrinik_PlayerType.tp_doc = "Atrinik Player class.\n\n"

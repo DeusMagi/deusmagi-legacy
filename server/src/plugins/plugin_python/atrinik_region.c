@@ -171,6 +171,8 @@ int Atrinik_Region_init(PyObject *module)
     getseters[i].name = NULL;
 
     Atrinik_RegionType.tp_name = "Atrinik.Region";
+    Atrinik_RegionType.tp_alloc = PyType_GenericAlloc;
+    Atrinik_RegionType.tp_basicsize = sizeof(Atrinik_Region);
     Atrinik_RegionType.tp_dealloc = (destructor) Atrinik_Region_dealloc;
     Atrinik_RegionType.tp_repr = (reprfunc) Atrinik_Region_str;
     Atrinik_RegionType.tp_doc = "Atrinik regions";

@@ -795,7 +795,7 @@ static int do_script(PythonContext *context, const char *filename)
 
     gilstate = PyGILState_Ensure();
 
-    LOG(DEVEL, "Compiling the Python script %s", 
+    LOG(DEVEL, "Compile the Python script %s", 
         hooks->create_pathname(context->event != NULL ? context->event->race : filename));
     
     pycode = compilePython(hooks->create_pathname(
@@ -849,11 +849,11 @@ static int do_script(PythonContext *context, const char *filename)
             PyDict_SetItemString(dict, "msg", Py_BuildValue(""));
         }
 
-        LOG(DEVEL, "Eval the Python code ...");
+        LOG(DEVEL, "Evaluating the Python code ...");
         
         ret = PyEval_EvalCode(pycode, dict, NULL);
         
-        LOG(DEVEL, "Eval Done");
+        LOG(DEVEL, "Evaluation Done");
 
         if (PyErr_Occurred()) {
             PyErr_LOG();
